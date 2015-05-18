@@ -7,9 +7,16 @@ using System.Threading.Tasks;
 /* DBに登録するユーザ設定 */
 namespace ImHere
 {
-    class UserSettings
+    [Serializable()]
+    class UserSetting
     {
         public string name { get; set; }
-        public string macAddres { get; set; }
+        public string macAdress { get; set; }
+
+        public UserSetting(string name, string macAdress)
+        {
+            this.name = name;
+            this.macAdress = macAdress;
+        }
     }
 }

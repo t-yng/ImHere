@@ -21,7 +21,9 @@ namespace ImHere
             this.websocket = websocket;
         }
 
-        /* 「OK」ボタンが押された時の処理 */
+        /**
+         * 「OK」ボタンが押された時の処理
+         */
         private void ok_button_Click(object sender, EventArgs e)
         {
             if (validate_Input())    // 入力チェック
@@ -35,11 +37,23 @@ namespace ImHere
                 websocket.Emit("c2s_message_register_member", new{name=name, lab=lab, state=1});
 
                 /* TODO : サーバに登録したユーザ情報をローカルで永続保存する */
+                
+                
+
                 /* MACアドレスを一緒に送信することで、サーバからメンバー新規登録メッセージ受信時に
                  * 自分が送信した情報であることを識別すると良い? */
 
                 this.Close();
             }
+        }
+
+
+        /**
+         * ユーザ情報をローカルで永続保存する
+         */
+        private void saveUserSettingConf(UserSetting setting)
+        {
+            
         }
 
         /* 「キャンセル」ボタンが押された時の処理 */

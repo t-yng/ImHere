@@ -144,9 +144,7 @@ function change_state(user_id, state, callback){
 			console.log("update state : user_id="+user_id+", state="+state);
 			callback(200);
 		}
-
 	});
-
 }
 
 /* 特定のユーザ情報をDBより取得 */

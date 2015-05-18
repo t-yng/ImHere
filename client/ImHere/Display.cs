@@ -12,11 +12,15 @@ using Microsoft.Win32;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using SocketIOClient;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Net.NetworkInformation;
 
 namespace ImHere
 {
     public partial class Display : Form
     {
+        private string USER_CONF_FILE = Application.LocalUserAppDataPath+"\\usersetting.config";
+        private string HOST_URL = "http://localhost:3000";
         private int INROOM = 1;
         private int OUTROOM = 4;
 
@@ -25,6 +29,14 @@ namespace ImHere
         public Display()
         {
             InitializeComponent();
+            getMacAdress();
+//            UserSetting setting = loadUserSetting();
+//            if (setting == null)
+//            {
+//                createUserSetting();
+//            }
+//            loadUserSetting();
+//            createUserSetting();
             connect();
 //            NotifyState2Server(INROOM);
             InitializeTable();
@@ -32,9 +44,64 @@ namespace ImHere
             Microsoft.Win32.SystemEvents.SessionSwitch += new Microsoft.Win32.SessionSwitchEventHandler(WatchSessionSwitchEvent);
         }
 
+        private void getMacAdress()
+        {
+            /* アダプタリストを取得 */
+            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+
+            foreach (NetworkInterface adapter in adapters)
+            {
+                /* ネットワーク接続状態がUPのアダプタのみ表示 */
+                if (adapter.OperationalStatus == OperationalStatus.Up)
+                {
+                   /* MACアドレスの取得 */
+                    PhysicalAddress physical = adapter.GetPhysicalAddress();
+                    Console.WriteLine("MACアドレス=" + physical);
+
+                    break;
+                }
+            }
+        }
+
+        /**
+         * ユーザ情報をサーバに登録して、ファイルに保存
+         */
+        private void createUserSetting()
+        {
+            /* ユーザ登録フォームを表示 */
+            MemberEntryFrom form = new MemberEntryFrom(websocket);
+            form.Show();
+
+            /* ユーザ情報をファイルに保存 */
+            string filename = @USER_CONF_FILE+"\\usersettings.config";
+            UserSetting setting = new UserSetting("柳", "00-1B-DC-05-C2-37");
+
+            BinaryFormatter bf = new BinaryFormatter();
+            System.IO.FileStream fs = new System.IO.FileStream(filename, System.IO.FileMode.Create);
+            bf.Serialize(fs, setting);
+
+            fs.Close();
+            
+        }
+
+        private UserSetting loadUserSetting()
+        {
+            UserSetting setting = null;
+
+            string filename = @".\usersettings.config";
+            BinaryFormatter bf = new BinaryFormatter();
+            System.IO.FileStream fs = new System.IO.FileStream(filename, System.IO.FileMode.Open);
+            setting = (UserSetting)bf.Deserialize(fs);
+            fs.Close();
+
+            Console.WriteLine("name = " + setting.name + ", macAdress=" + setting.macAdress);
+
+            return setting;
+        }
+
         private void connect()
         {
-            websocket = new Client("http://localhost:3000");
+            websocket = new Client(HOST_URL);
 
             /* サーバとの接続が確定 */
             websocket.On("connect", (fn) =>
@@ -133,7 +200,7 @@ namespace ImHere
         {
             /* HTTPリクエストにより全ユーザ情報を取得 */
             HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri("http://localhost:3000/imhere/api/");
+            client.BaseAddress = new Uri(HOST_URL+"/imhere/api/");
             
             HttpResponseMessage response = client.GetAsync("get/state/all").Result;
             if (response.IsSuccessStatusCode)
