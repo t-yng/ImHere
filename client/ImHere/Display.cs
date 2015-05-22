@@ -56,6 +56,9 @@ namespace ImHere
                 {
                    /* MACアドレスの取得 */
                     PhysicalAddress physical = adapter.GetPhysicalAddress();
+                    Console.WriteLine("Status : " + adapter.OperationalStatus);
+                    Console.WriteLine("Name : " + adapter.Name);
+                    Console.WriteLine("Interface type : " + adapter.NetworkInterfaceType);
                     Console.WriteLine("MACアドレス=" + physical);
 
                     break;
