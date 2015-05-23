@@ -11,12 +11,12 @@ namespace ImHere
     class UserSetting
     {
         public string name { get; set; }
-        public string macAdress { get; set; }
+        public string macAddress { get; set; }
 
-        public UserSetting(string name, string macAdress)
+        public UserSetting(string name, string macAddress)
         {
             this.name = name;
-            this.macAdress = macAdress;
+            this.macAddress = macAddress;
         }
     }
 }

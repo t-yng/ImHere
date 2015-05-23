@@ -29,64 +29,32 @@ namespace ImHere
         public Display()
         {
             InitializeComponent();
-            getMacAdress();
-//            UserSetting setting = loadUserSetting();
-//            if (setting == null)
-//            {
-//                createUserSetting();
-//            }
-//            loadUserSetting();
-//            createUserSetting();
+
+            /* ユーザ情報の確認 */
+            UserSetting setting = loadUserSetting();
+            if (setting == null)
+            {
+                showMemberEntryForm();
+            }
+
+            /* websocketの接続 */
             connect();
+
 //            NotifyState2Server(INROOM);
             InitializeTable();
 
+            /* セッションイベント（画面ロックなど）に対するイベントリスナーを登録 */
             Microsoft.Win32.SystemEvents.SessionSwitch += new Microsoft.Win32.SessionSwitchEventHandler(WatchSessionSwitchEvent);
         }
 
-        private void getMacAdress()
-        {
-            /* アダプタリストを取得 */
-            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
-
-            foreach (NetworkInterface adapter in adapters)
-            {
-                /* ネットワーク接続状態がUPのアダプタのみ表示 */
-                if (adapter.OperationalStatus == OperationalStatus.Up)
-                {
-                   /* MACアドレスの取得 */
-                    PhysicalAddress physical = adapter.GetPhysicalAddress();
-                    Console.WriteLine("Status : " + adapter.OperationalStatus);
-                    Console.WriteLine("Name : " + adapter.Name);
-                    Console.WriteLine("Interface type : " + adapter.NetworkInterfaceType);
-                    Console.WriteLine("MACアドレス=" + physical);
-
-                    break;
-                }
-            }
-        }
-
-        /**
-         * ユーザ情報をサーバに登録して、ファイルに保存
-         */
-        private void createUserSetting()
+        private void showMemberEntryForm()
         {
             /* ユーザ登録フォームを表示 */
             MemberEntryFrom form = new MemberEntryFrom(websocket);
             form.Show();
-
-            /* ユーザ情報をファイルに保存 */
-            string filename = @USER_CONF_FILE+"\\usersettings.config";
-            UserSetting setting = new UserSetting("柳", "00-1B-DC-05-C2-37");
-
-            BinaryFormatter bf = new BinaryFormatter();
-            System.IO.FileStream fs = new System.IO.FileStream(filename, System.IO.FileMode.Create);
-            bf.Serialize(fs, setting);
-
-            fs.Close();
-            
         }
 
+        /* サーバにユーザ登録されている場合、ローカルに保存されているユーザ情報を読み込み */
         private UserSetting loadUserSetting()
         {
             UserSetting setting = null;
